@@ -11,36 +11,65 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import axiosInstance from "@/lib/axiosInstance";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 
 export function Login() {
   const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm();
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await axiosInstance.post("/auth/login", data);
+
+      if (response.data?.token) {
+        localStorage.setItem("token", response.data.token);
+        console.log("Token:", localStorage.getItem("token"));
+      }
+
+      console.log("Login Success:", response.data);
+      router.push("/movies");
+    } catch (error) {
+      console.error("Login Error:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Login failed");
+    }
+  };
+
   return (
-    <div className="min-h-screen w-screen flex justify-center items-center auth-gradient-bg relative overflow-hidden">
-      {/* Floating Decorative Shapes - Dark Theme Colors */}
+    <div className="min-h-screen w-screen flex justify-center items-center auth-gradient-bg relative overflow-hidden py-8">
+      {/* Floating Decorative Shapes */}
       <div
         className="floating-shape floating-shape-1 w-72 h-72 bg-linear-to-br from-violet-600/20 to-purple-800/20"
-        style={{ top: "10%", left: "5%" }}
+        style={{ top: "5%", left: "3%" }}
       />
       <div
-        className="floating-shape floating-shape-2 w-96 h-96 bg-linear-to-br from-indigo-500/15 to-cyan-600/15"
-        style={{ bottom: "5%", right: "10%" }}
+        className="floating-shape floating-shape-2 w-80 h-80 bg-linear-to-br from-indigo-500/15 to-cyan-600/15"
+        style={{ bottom: "10%", right: "5%" }}
       />
       <div
-        className="floating-shape floating-shape-3 w-48 h-48 bg-linear-to-br from-fuchsia-600/20 to-pink-700/20"
-        style={{ top: "60%", left: "15%" }}
+        className="floating-shape floating-shape-3 w-40 h-40 bg-linear-to-br from-fuchsia-600/20 to-pink-700/20"
+        style={{ top: "70%", left: "10%" }}
       />
       <div
-        className="floating-shape floating-shape-1 w-32 h-32 bg-linear-to-br from-cyan-500/20 to-teal-600/20"
-        style={{ top: "20%", right: "15%" }}
+        className="floating-shape floating-shape-1 w-28 h-28 bg-linear-to-br from-cyan-500/20 to-teal-600/20"
+        style={{ top: "15%", right: "12%" }}
+      />
+      <div
+        className="floating-shape floating-shape-2 w-36 h-36 bg-linear-to-br from-purple-500/15 to-indigo-600/15"
+        style={{ top: "40%", left: "85%" }}
       />
 
       {/* Main Card */}
-      <Card className="w-full max-w-md mx-4 glass-card animate-fade-in border-0 shadow-2xl">
+      <Card className="w-full max-w-lg mx-4 glass-card animate-fade-in border-0 shadow-2xl">
         <CardHeader className="text-center pb-2 space-y-4">
-          {/* Movie Icon */}
           <div className="flex justify-center">
-            <div className="w-20 h-20 rounded-full bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center animate-pulse-glow shadow-lg">
+            <div className="w-20 h-20 rounded-full bg-linear-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center animate-pulse-glow shadow-lg">
               <svg
                 className="w-10 h-10 text-white"
                 fill="none"
@@ -68,9 +97,10 @@ export function Login() {
               Welcome Back
             </CardTitle>
             <CardDescription className="text-white/80 mt-1">
-              Sign in to continue your movie journey
+              Sign in to continue your movie adventure
             </CardDescription>
           </div>
+
           <CardAction>
             <Button
               variant="link"
@@ -82,10 +112,10 @@ export function Login() {
           </CardAction>
         </CardHeader>
 
-        <CardContent className="space-y-5">
-          <form>
-            <div className="flex flex-col gap-5">
-              {/* Email Input */}
+        <CardContent className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex flex-col gap-4">
+              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-white/90 font-medium">
                   Email Address
@@ -111,12 +141,13 @@ export function Login() {
                     type="email"
                     placeholder="you@example.com"
                     required
+                    {...register("email")}
                     className="pl-11 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/40 transition-all duration-300 premium-input"
                   />
                 </div>
               </div>
 
-              {/* Password Input */}
+              {/* Password */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label
@@ -151,25 +182,27 @@ export function Login() {
                   <Input
                     id="password"
                     type="password"
-                    required
                     placeholder="••••••••"
+                    required
+                    {...register("password")}
                     className="pl-11 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/40 transition-all duration-300 premium-input"
                   />
                 </div>
               </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full h-12 bg-linear-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] shimmer-btn border-0 disabled:opacity-50"
+              >
+                {isSubmitting ? "Signing In..." : "Sign In"}
+              </Button>
             </div>
           </form>
         </CardContent>
 
         <CardFooter className="flex-col gap-3 pt-2">
-          {/* Primary Login Button */}
-          <Button
-            type="submit"
-            className="w-full h-12 bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] shimmer-btn border-0"
-          >
-            Sign In
-          </Button>
-
           {/* Divider */}
           <div className="flex items-center gap-3 w-full my-1">
             <div className="flex-1 h-px bg-white/20"></div>
@@ -177,7 +210,7 @@ export function Login() {
             <div className="flex-1 h-px bg-white/20"></div>
           </div>
 
-          {/* Google Login Button */}
+          {/* Google Button */}
           <Button
             variant="outline"
             className="w-full h-12 bg-white/10 hover:bg-white/20 border-white/30 hover:border-white/50 text-white font-medium transition-all duration-300 hover:scale-[1.02]"
