@@ -13,6 +13,7 @@ import {
 import { Search, Star, Calendar, Film, SlidersHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axiosInstance";
+import LogoutButton from "../../layout/logout";
 
 const SORT_OPTIONS = ["Rating", "Year", "Title"];
 
@@ -62,7 +63,7 @@ const GENRE_ALIAS_MAP = {
 
 export default function Movie() {
   const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("All");
@@ -70,7 +71,6 @@ export default function Movie() {
   const [sortBy, setSortBy] = useState("Rating");
   const [genres, setGenres] = useState(["All"]);
   const [years, setYears] = useState(["All"]);
-
   const router = useRouter();
 
   // Debounce search input
@@ -125,7 +125,6 @@ export default function Movie() {
 
         setMovies(moviesWithGenres);
 
-        // Extract unique genres
         const genreSet = new Set();
         moviesWithGenres.forEach((m) =>
           m.genre.forEach((g) => genreSet.add(g))
@@ -160,7 +159,9 @@ export default function Movie() {
 
   return (
     <div className="min-h-screen w-full movie-gradient-bg movie-page-scroll relative overflow-x-hidden">
-      {/* Hero Section */}
+      <div className="fixed top-4 right-4 z-50">
+        <LogoutButton />
+      </div>
       <div className="relative pt-12 pb-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center mb-10 animate-fade-in">
           <div className="flex justify-center mb-4">
@@ -176,7 +177,6 @@ export default function Movie() {
           </p>
         </div>
 
-        {/* Search */}
         <div className="max-w-2xl mx-auto mb-8 animate-fade-in">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
@@ -190,14 +190,12 @@ export default function Movie() {
           </div>
         </div>
 
-        {/* Filters */}
         <div className="flex flex-wrap justify-center gap-4 mb-10 animate-fade-in">
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="w-4 h-4 text-white/60" />
             <span className="text-white/60 text-sm font-medium">Filters:</span>
           </div>
 
-          {/* Genre */}
           <Select value={selectedGenre} onValueChange={setSelectedGenre}>
             <SelectTrigger className="w-[140px] bg-white/10 border-white/20 text-white hover:bg-white/15 transition-all duration-300">
               <SelectValue placeholder="Genre" />
@@ -215,7 +213,6 @@ export default function Movie() {
             </SelectContent>
           </Select>
 
-          {/* Year */}
           <Select value={selectedYear} onValueChange={setSelectedYear}>
             <SelectTrigger className="w-[140px] bg-white/10 border-white/20 text-white hover:bg-white/15 transition-all duration-300">
               <Calendar className="w-4 h-4 mr-2 opacity-60" />
@@ -234,7 +231,6 @@ export default function Movie() {
             </SelectContent>
           </Select>
 
-          {/* Sort */}
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-[140px] bg-white/10 border-white/20 text-white hover:bg-white/15 transition-all duration-300">
               <SelectValue placeholder="Sort by" />
@@ -252,17 +248,8 @@ export default function Movie() {
             </SelectContent>
           </Select>
         </div>
-
-        {/* Results Count */}
-        <div className="text-center mb-6">
-          <span className="text-white/60 text-sm">
-            Showing {filteredMovies.length} movie
-            {filteredMovies.length !== 1 ? "s" : ""}
-          </span>
-        </div>
       </div>
 
-      {/* Movie Grid */}
       <div className="px-4 sm:px-6 lg:px-8 pb-16">
         <div className="max-w-7xl mx-auto">
           {filteredMovies.length > 0 ? (

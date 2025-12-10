@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Star, Clock, Calendar, User, ArrowLeft, Send } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance";
+import { useSession } from "next-auth/react";
+import LogoutButton from "../../layout/logout";
 
 function StarRating({
   rating,
@@ -53,23 +55,30 @@ function ReviewCard({ review }) {
     <Card className="review-card bg-white/5 border-white/10 backdrop-blur-sm">
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
-          <Avatar className="w-10 h-10 bg-linear-to-br from-violet-500 to-purple-600 border-2 border-violet-500/30">
+          <Avatar>
             {avatarUrl ? (
-              <AvatarImage src={avatarUrl} />
+              <AvatarImage
+                src={avatarUrl}
+                onError={(e) => {
+                  e.currentTarget.src = "/default-avatar.png";
+                }}
+              />
             ) : (
-              <AvatarFallback className="bg-transparent text-white text-sm font-semibold">
-                {initials}
-              </AvatarFallback>
+              <AvatarFallback>{initials}</AvatarFallback>
             )}
           </Avatar>
+
           <div className="flex-1">
             <div className="flex items-center justify-between mb-2">
               <div>
                 <h4 className="text-white font-semibold">
-                  {user.firstName
+                  {user.firstName && user.lastName
                     ? `${user.firstName} ${user.lastName}`
-                    : review.user || "Unknown"}
+                    : typeof review.user === "string"
+                    ? review.user
+                    : user.id || "Unknown"}
                 </h4>
+
                 <p className="text-white/50 text-xs">
                   {review.date || new Date().toISOString().split("T")[0]}
                 </p>
@@ -90,7 +99,7 @@ export default function MovieDetails() {
   const router = useRouter();
   const params = useParams();
   const movieId = params.id;
-
+  const { data: session } = useSession();
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState("");
   const [newRating, setNewRating] = useState(0);
@@ -147,11 +156,19 @@ export default function MovieDetails() {
     if (!newReview.trim() || newRating === 0) return;
 
     try {
-      const res = await axiosInstance.post("/reviews", {
-        movieId,
-        rating: newRating,
-        comment: newReview,
-      });
+      const res = await axiosInstance.post(
+        "/reviews",
+        {
+          movieId,
+          rating: newRating,
+          comment: newReview,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+        }
+      );
 
       const newReviewData = res.data;
       setReviews([newReviewData, ...reviews]);
@@ -167,8 +184,8 @@ export default function MovieDetails() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center text-white">
-        Loading...
+      <div className="min-h-screen w-full flex items-center justify-center movie-gradient-bg">
+        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
       </div>
     );
   if (!movie)
@@ -180,7 +197,9 @@ export default function MovieDetails() {
 
   return (
     <div className="min-h-screen w-full movie-gradient-bg movie-page-scroll relative overflow-x-hidden">
-      {/* Back Button */}
+      <div className="fixed top-4 right-4 z-50">
+        <LogoutButton />
+      </div>
       <div className="fixed top-4 left-4 z-50">
         <Button
           variant="ghost"
@@ -192,10 +211,8 @@ export default function MovieDetails() {
         </Button>
       </div>
 
-      {/* Movie Details Section */}
       <div className="relative pt-20 pb-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8 animate-fade-in">
-          {/* Poster */}
           <div className="lg:w-1/3">
             <div
               className="aspect-2/3 rounded-2xl shadow-2xl relative overflow-hidden movie-card"
@@ -216,7 +233,6 @@ export default function MovieDetails() {
             </div>
           </div>
 
-          {/* Info */}
           <div className="lg:w-2/3 space-y-6">
             <div>
               <h1 className="text-4xl sm:text-5xl font-bold text-white mb-1 drop-shadow-lg">
@@ -296,7 +312,6 @@ export default function MovieDetails() {
               )}
             </div>
 
-            {/* Description */}
             <div className="glass-card rounded-xl p-6">
               <h3 className="text-white font-semibold mb-3 text-lg">
                 Synopsis
@@ -309,7 +324,6 @@ export default function MovieDetails() {
         </div>
       </div>
 
-      {/* Reviews Section */}
       <div className="px-4 sm:px-6 lg:px-8 pb-16">
         <div className="max-w-6xl mx-auto">
           <Separator className="bg-white/10 mb-10" />
@@ -333,7 +347,6 @@ export default function MovieDetails() {
             </div>
           </div>
 
-          {/* Add Review Form */}
           <Card className="glass-card border-white/10 mb-8">
             <CardContent className="p-6">
               <h3 className="text-white font-semibold mb-4">Write a Review</h3>
@@ -372,7 +385,6 @@ export default function MovieDetails() {
             </CardContent>
           </Card>
 
-          {/* Reviews List */}
           <div className="space-y-4">
             {reviews.length > 0 ? (
               reviews.map((review, index) => (

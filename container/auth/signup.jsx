@@ -9,18 +9,35 @@ import axiosInstance from "@/lib/axiosInstance";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
+// Validation schema
 const signupSchema = z.object({
   firstname: z.string().min(2, "First name must be at least 2 characters"),
   lastname: z.string().min(2, "Last name must be at least 2 characters"),
-  phone: z.string().min(10, "Please enter a valid phone number"),
+  phone: z
+    .string()
+    .regex(/^\+?\d{10,15}$/, "Please enter a valid phone number"),
   country: z.string().min(2, "Country is required"),
+  age: z
+    .number({ invalid_type_error: "Age is required" })
+    .min(13, "You must be at least 13 years old")
+    .max(120, "Enter a valid age"),
+  avatar: z
+    .string()
+    .url("Please enter a valid URL")
+    .optional()
+    .or(z.literal("")),
+  bio: z.string().max(200, "Bio cannot exceed 200 characters").optional(),
+  favoriteGenres: z
+    .array(z.string())
+    .min(1, "Enter at least one favorite genre")
+    .optional(),
   email: z.string().email("Please enter a valid email address"),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
     .regex(/[0-9]/, "Password must contain at least one number")
     .regex(
-      /[!@#$%^&*(),.?":{}|<>]/,
+      /[!@#$%^&*(),.?":{}|<>_]/,
       "Password must contain at least one symbol"
     ),
   terms: z.boolean().refine((val) => val === true, {
@@ -42,6 +59,10 @@ export function Signup() {
       lastname: "",
       phone: "",
       country: "",
+      age: "",
+      avatar: "",
+      bio: "",
+      favoriteGenres: [],
       email: "",
       password: "",
       terms: false,
@@ -50,6 +71,14 @@ export function Signup() {
 
   const onSubmit = async (data) => {
     try {
+      // Convert favoriteGenres to array if it's a string
+      if (typeof data.favoriteGenres === "string") {
+        data.favoriteGenres = data.favoriteGenres
+          .split(",")
+          .map((g) => g.trim())
+          .filter(Boolean);
+      }
+
       const response = await axiosInstance.post("/auth/signup", data);
 
       if (response.data?.token) {
@@ -75,10 +104,8 @@ export function Signup() {
         style={{ bottom: "10%", right: "5%" }}
       />
 
-      {/* Main Card */}
       <Card className="w-full max-w-4xl mx-4 glass-card animate-fade-in border-0 shadow-2xl grid grid-cols-1 lg:grid-cols-2">
-        {/* Left Section - Info & Illustration */}
-        <div className="hidden lg:flex flex-col justify-center items-center bg-gradient-to-br from-purple-700 to-fuchsia-600 p-8 m-8 rounded-l-2xl">
+        <div className="hidden lg:flex flex-col justify-center items-center bg-linear-to-br from-purple-700 to-fuchsia-600 p-8 m-8 rounded-l-2xl">
           <div className="w-32 h-32 rounded-full bg-white/20 flex items-center justify-center mb-6 animate-pulse-glow">
             <svg
               className="w-12 h-12 text-white"
@@ -109,17 +136,17 @@ export function Signup() {
           <Button
             variant="link"
             onClick={() => router.push("/login")}
-            className="mt-4 text-white/90 hover:text-white font-semibold transition-all duration-300 hover:scale-105"
+            className="mt-4 text-white/90 hover:text-white font-semibold transition-all duration-300 hover:scale-105 cursor-pointer"
           >
             Already have an account? →
           </Button>
         </div>
 
-        {/* Right Section - Form */}
         <CardContent className="p-8 flex flex-col justify-center">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Form fields remain exactly as your design */}
+            {/* Firstname & Lastname */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* First Name */}
               <div className="space-y-2">
                 <Label
                   htmlFor="firstname"
@@ -141,7 +168,6 @@ export function Signup() {
                 )}
               </div>
 
-              {/* Last Name */}
               <div className="space-y-2">
                 <Label htmlFor="lastname" className="text-white/90 font-medium">
                   Last Name
@@ -211,6 +237,9 @@ export function Signup() {
                   {...register("age", { valueAsNumber: true })}
                   className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/40 transition-all duration-300 premium-input"
                 />
+                {errors.age && (
+                  <p className="text-red-400 text-sm">{errors.age.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -224,6 +253,11 @@ export function Signup() {
                   {...register("avatar")}
                   className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/40 transition-all duration-300 premium-input"
                 />
+                {errors.avatar && (
+                  <p className="text-red-400 text-sm">
+                    {errors.avatar.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -240,6 +274,9 @@ export function Signup() {
                   {...register("bio")}
                   className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/40 transition-all duration-300 premium-input"
                 />
+                {errors.bio && (
+                  <p className="text-red-400 text-sm">{errors.bio.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -261,10 +298,15 @@ export function Signup() {
                   })}
                   className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/40 transition-all duration-300 premium-input"
                 />
+                {errors.favoriteGenres && (
+                  <p className="text-red-400 text-sm">
+                    {errors.favoriteGenres.message}
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Email */}
+            {/* Email & Password */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-white/90 font-medium">
                 Email Address
@@ -276,9 +318,11 @@ export function Signup() {
                 {...register("email")}
                 className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/40 transition-all duration-300 premium-input"
               />
+              {errors.email && (
+                <p className="text-red-400 text-sm">{errors.email.message}</p>
+              )}
             </div>
 
-            {/* Password */}
             <div className="space-y-2">
               <Label htmlFor="password" className="text-white/90 font-medium">
                 Password
@@ -290,6 +334,11 @@ export function Signup() {
                 {...register("password")}
                 className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/40 transition-all duration-300 premium-input"
               />
+              {errors.password && (
+                <p className="text-red-400 text-sm">
+                  {errors.password.message}
+                </p>
+              )}
               <p className="text-white/50 text-xs pl-1">
                 Must be at least 8 characters with a number and symbol
               </p>
@@ -320,8 +369,10 @@ export function Signup() {
                 </a>
               </label>
             </div>
+            {errors.terms && (
+              <p className="text-red-400 text-sm">{errors.terms.message}</p>
+            )}
 
-            {/* Signup Button */}
             <Button
               type="submit"
               disabled={isSubmitting}

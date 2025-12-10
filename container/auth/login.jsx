@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import axiosInstance from "@/lib/axiosInstance";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { signIn } from "next-auth/react";
 
 export function Login() {
   const router = useRouter();
@@ -25,25 +25,21 @@ export function Login() {
   } = useForm();
 
   const onSubmit = async (data) => {
-    try {
-      const response = await axiosInstance.post("/auth/login", data);
+    const res = await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    });
 
-      if (response.data?.token) {
-        localStorage.setItem("token", response.data.token);
-        console.log("Token:", localStorage.getItem("token"));
-      }
-
-      console.log("Login Success:", response.data);
+    if (res?.error) {
+      alert("Invalid email or password");
+    } else {
       router.push("/movies");
-    } catch (error) {
-      console.error("Login Error:", error.response?.data || error.message);
-      alert(error.response?.data?.message || "Login failed");
     }
   };
 
   return (
     <div className="min-h-screen w-screen flex justify-center items-center auth-gradient-bg relative overflow-hidden py-8">
-      {/* Floating Decorative Shapes */}
       <div
         className="floating-shape floating-shape-1 w-72 h-72 bg-linear-to-br from-violet-600/20 to-purple-800/20"
         style={{ top: "5%", left: "3%" }}
@@ -65,7 +61,6 @@ export function Login() {
         style={{ top: "40%", left: "85%" }}
       />
 
-      {/* Main Card */}
       <Card className="w-full max-w-lg mx-4 glass-card animate-fade-in border-0 shadow-2xl">
         <CardHeader className="text-center pb-2 space-y-4">
           <div className="flex justify-center">
@@ -115,7 +110,6 @@ export function Login() {
         <CardContent className="space-y-4">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-4">
-              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-white/90 font-medium">
                   Email Address
@@ -142,12 +136,12 @@ export function Login() {
                     placeholder="you@example.com"
                     required
                     {...register("email")}
+                    autoComplete="username"
                     className="pl-11 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/40 transition-all duration-300 premium-input"
                   />
                 </div>
               </div>
 
-              {/* Password */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label
@@ -184,13 +178,13 @@ export function Login() {
                     type="password"
                     placeholder="••••••••"
                     required
+                    autoComplete="current-password"
                     {...register("password")}
                     className="pl-11 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/40 transition-all duration-300 premium-input"
                   />
                 </div>
               </div>
 
-              {/* Submit Button */}
               <Button
                 type="submit"
                 disabled={isSubmitting}
@@ -203,15 +197,14 @@ export function Login() {
         </CardContent>
 
         <CardFooter className="flex-col gap-3 pt-2">
-          {/* Divider */}
           <div className="flex items-center gap-3 w-full my-1">
             <div className="flex-1 h-px bg-white/20"></div>
             <span className="text-white/60 text-sm">or continue with</span>
             <div className="flex-1 h-px bg-white/20"></div>
           </div>
 
-          {/* Google Button */}
           <Button
+            onClick={() => signIn("google", { callbackUrl: "/movies" })}
             variant="outline"
             className="w-full h-12 bg-white/10 hover:bg-white/20 border-white/30 hover:border-white/50 text-white font-medium transition-all duration-300 hover:scale-[1.02]"
           >
