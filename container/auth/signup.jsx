@@ -105,7 +105,7 @@ export function Signup() {
       />
 
       <Card className="w-full max-w-4xl mx-4 glass-card animate-fade-in border-0 shadow-2xl grid grid-cols-1 lg:grid-cols-2">
-        <div className="hidden lg:flex flex-col justify-center items-center bg-linear-to-br from-purple-700 to-fuchsia-600 p-8 m-8 rounded-l-2xl">
+        <div className="hidden lg:flex flex-col justify-center items-center bg-linear-to-br from-purple-700 to-fuchsia-600 p-8 m-8 rounded-md">
           <div className="w-32 h-32 rounded-full bg-white/20 flex items-center justify-center mb-6 animate-pulse-glow">
             <svg
               className="w-12 h-12 text-white"

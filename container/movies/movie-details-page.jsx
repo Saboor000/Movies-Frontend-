@@ -197,18 +197,17 @@ export default function MovieDetails() {
 
   return (
     <div className="min-h-screen w-full movie-gradient-bg movie-page-scroll relative overflow-x-hidden">
-      <div className="fixed top-4 right-4 z-50">
-        <LogoutButton />
-      </div>
-      <div className="fixed top-4 left-4 z-50">
+      <div className="sticky top-0 z-40 flex justify-between items-center px-4 py-4">
         <Button
           variant="ghost"
           onClick={() => router.push("/movies")}
-          className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/10"
+          className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/10 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
+
+        <LogoutButton />
       </div>
 
       <div className="relative pt-20 pb-8 px-4 sm:px-6 lg:px-8">
@@ -376,7 +375,7 @@ export default function MovieDetails() {
                 <Button
                   type="submit"
                   disabled={!newReview.trim() || newRating === 0}
-                  className="bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-semibold px-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className=" cursor-pointer bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-semibold px-6 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4 mr-2" />
                   Submit Review

@@ -159,9 +159,10 @@ export default function Movie() {
 
   return (
     <div className="min-h-screen w-full movie-gradient-bg movie-page-scroll relative overflow-x-hidden">
-      <div className="fixed top-4 right-4 z-50">
+      <div className="sticky top-0 flex justify-end pr-4 pt-4 z-40">
         <LogoutButton />
       </div>
+
       <div className="relative pt-12 pb-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center mb-10 animate-fade-in">
           <div className="flex justify-center mb-4">
@@ -192,12 +193,12 @@ export default function Movie() {
 
         <div className="flex flex-wrap justify-center gap-4 mb-10 animate-fade-in">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="w-4 h-4 text-white/60" />
+            <SlidersHorizontal className="w-4 h-4 text-white/60 " />
             <span className="text-white/60 text-sm font-medium">Filters:</span>
           </div>
 
           <Select value={selectedGenre} onValueChange={setSelectedGenre}>
-            <SelectTrigger className="w-[140px] bg-white/10 border-white/20 text-white hover:bg-white/15 transition-all duration-300">
+            <SelectTrigger className="w-[140px] bg-white/10 border-white/20 text-white hover:bg-white/15 transition-all duration-300 cursor-pointer">
               <SelectValue placeholder="Genre" />
             </SelectTrigger>
             <SelectContent className="bg-gray-900 border-white/20">
@@ -214,7 +215,7 @@ export default function Movie() {
           </Select>
 
           <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger className="w-[140px] bg-white/10 border-white/20 text-white hover:bg-white/15 transition-all duration-300">
+            <SelectTrigger className="cursor-pointer w-[140px] bg-white/10 border-white/20 text-white hover:bg-white/15 transition-all duration-300">
               <Calendar className="w-4 h-4 mr-2 opacity-60" />
               <SelectValue placeholder="Year" />
             </SelectTrigger>
@@ -232,7 +233,7 @@ export default function Movie() {
           </Select>
 
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[140px] bg-white/10 border-white/20 text-white hover:bg-white/15 transition-all duration-300">
+            <SelectTrigger className="cursor-pointer w-[140px] bg-white/10 border-white/20 text-white hover:bg-white/15 transition-all duration-300">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent className="bg-gray-900 border-white/20">
@@ -258,13 +259,13 @@ export default function Movie() {
                 <Card
                   key={movie.id}
                   onClick={() => router.push(`/movies/${movie.id}`)}
-                  className={`movie-card group cursor-pointer opacity-0 grid-item-reveal`}
+                  className={`movie-card group cursor-pointer opacity-0 grid-item-reveal p-0 gap-0 border-0`}
                   style={{ animationDelay: `${(index % 12) * 0.05}s` }}
                 >
                   <CardContent className="p-0">
                     {/* Poster */}
                     <div
-                      className="relative aspect-2/3 w-full bg-cover bg-center rounded-lg"
+                      className="relative aspect-2/3 w-full bg-cover bg-center"
                       style={{ backgroundImage: `url(${movie.poster})` }}
                     >
                       <div className="absolute inset-0 movie-poster-overlay opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
