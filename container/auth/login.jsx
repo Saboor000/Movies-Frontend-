@@ -206,7 +206,7 @@ export function Login() {
           <Button
             onClick={() => signIn("google", { callbackUrl: "/movies" })}
             variant="outline"
-            className="w-full h-12 bg-white/10 hover:bg-white/20 border-white/30 hover:border-white/50 text-white font-medium transition-all duration-300 hover:scale-[1.02]"
+            className="cursor-pointer w-full h-12 bg-white/10 hover:bg-white/20 border-white/30 hover:border-white/50 text-white font-medium transition-all duration-300 hover:scale-[1.02]"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
               <path
